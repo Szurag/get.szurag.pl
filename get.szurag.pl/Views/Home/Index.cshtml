@@ -1,0 +1,92 @@
+@model get.szurag.pl.Models.FileExplorerViewModel
+
+@{
+    Layout = "_Layout";
+
+    var parentPath = Model.CurrentPath == "/" ? null : Model.CurrentPath!.TrimEnd('/').Contains("/") ? Model.CurrentPath.TrimEnd('/')[..Model.CurrentPath.TrimEnd('/').LastIndexOf('/')] : "/";
+}
+
+<h1>get.szurag.pl</h1>
+
+<div id="container">
+    <div id="left">
+        @if (parentPath != null)
+        {
+            <p>
+                <a href="@Url.Action("Index", new { path = parentPath })">
+                    ⬅️ Powrót
+                </a>
+            </p>
+        }
+
+        <ul>
+            @foreach (var directory in Model.Directories!)
+            {
+                <li>
+                    <a href="@Url.Action("Index", new { path = Model.CurrentPath.TrimEnd('/') + "/" + directory })">
+                        📂 @directory
+                    </a>
+                </li>
+            }
+
+            @foreach (var file in Model.Files!)
+            {
+                <li>
+                    📄
+                    <a href="@Url.Action("Index", new { path = Model.CurrentPath.TrimEnd('/') + "/" + file })" target="_blank">
+                        @file
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <div id="right">
+        <h2>Upload</h2>
+        <input type="file" id="fileInput" required/>
+        <button id="uploadButton">Wyślij</button>
+    </div>
+
+    <script>
+        const socket = new WebSocket("ws://localhost:5228/ws");
+
+        socket.onopen = () => {
+            console.log("Połączono z WebSocket");
+        };
+
+        socket.onmessage = (event) => {
+            console.log("Serwer:", event.data);
+        };
+
+        socket.onclose = () => {
+            console.log("Połączenie WebSocket zamknięte");
+        };
+
+        document.getElementById("uploadButton").addEventListener("click", async () => {
+            const fileInput = document.getElementById("fileInput");
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Wybierz plik!");
+                return;
+            }
+
+            const socketReady = socket.readyState === WebSocket.OPEN;
+            if (!socketReady) {
+                alert("WebSocket nie jest połączony.");
+                return;
+            }
+
+            const arrayBuffer = await file.arrayBuffer();
+            const metadata = JSON.stringify({ filename: file.name, size: file.size });
+
+            // Wysłanie metadanych jako wiadomość tekstowa
+            socket.send(metadata);
+
+            // Wysłanie danych pliku jako binaria
+            socket.send(arrayBuffer);
+
+            console.log("Wysłano plik:", file.name);
+        });
+    </script>
+</div>
