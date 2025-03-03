@@ -81,7 +81,7 @@
 
     <ItemGroup>
       <Folder Include="Migrations\" />
-      <Folder Include="public\" />
+      <Folder Include="public\sigmus\" />
     </ItemGroup>
 
 </Project>

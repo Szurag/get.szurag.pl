@@ -7,9 +7,10 @@ using Microsoft.EntityFrameworkCore;
 namespace get.szurag.pl.Controllers;
 
 [ApiController]
+[Route("api/[controller]")]
+
 public class AuthController(ApplicationDbContext context) : ControllerBase
 {
-    [Route("api/auth")]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {

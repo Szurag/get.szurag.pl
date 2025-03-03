@@ -64,13 +64,6 @@ app.Map("/ws", async (context) =>
     }
 });
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers(); // Mapuje API, np. /api/auth/login
-    endpoints.MapControllerRoute(
-        name: "default",
-        pattern: "{**path}",
-        defaults: new { controller = "Home", action = "Index" } // Wszystkie inne ścieżki idą do HomeController
-    );
-});
+app.MapControllers();
+
 app.Run();

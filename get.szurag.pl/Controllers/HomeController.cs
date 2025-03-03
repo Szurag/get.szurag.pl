@@ -11,11 +11,6 @@ public class HomeController(FileExplorerService fileExplorerService, Application
     [Route("{**path}")]
     public IActionResult Index(string? path)
     {
-        if (path!.StartsWith("api/"))
-        {
-            return NotFound();
-        }
-        
         var safePath = fileExplorerService.GetSafePath(path);
         var (isFile, fullPath, fileRelativePath) = safePath;
 
